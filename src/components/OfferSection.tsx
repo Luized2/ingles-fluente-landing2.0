@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Check, Star, Shield, CreditCard, Clock } from "lucide-react";
 
@@ -11,18 +11,45 @@ export const OfferSection = () => {
     "Comunidade Exclusiva de Alunos",
     "Suporte Direto com o Professor",
     "Certificado de Conclusão",
-    "Garantia de 30 dias",
   ];
 
-  const handlePurchase = () => {
-    // Scroll para o anchor de pagamento ou integração
-    const paymentSection = document.getElementById("payment-anchor");
-    if (paymentSection) {
-      paymentSection.scrollIntoView({ behavior: "smooth" });
-    } else {
-      // Integração com plataforma de pagamento
-      alert("Redirecionando para pagamento...");
+  // --- LÓGICA DO CONTADOR REGRESSIVO ---
+  const calculateTimeLeft = () => {
+    // A data final da oferta (ajuste conforme necessário)
+    const difference = +new Date("2025-07-04T23:59:59") - +new Date();
+    let timeLeft = {};
+
+    if (difference > 0) {
+      timeLeft = {
+        dias: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        horas: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutos: Math.floor((difference / 1000 / 60) % 60),
+        segundos: Math.floor((difference / 1000) % 60),
+      };
     }
+
+    return timeLeft as {
+      dias: number;
+      horas: number;
+      minutos: number;
+      segundos: number;
+    };
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+    // Limpa o timer quando o componente é desmontado
+    return () => clearTimeout(timer);
+  });
+  // --- FIM DA LÓGICA DO CONTADOR ---
+
+  const handlePurchase = () => {
+    // Ação de compra
+    alert("Redirecionando para pagamento seguro...");
   };
 
   return (
@@ -37,16 +64,16 @@ export const OfferSection = () => {
             <span className="text-landing-accent">começa agora</span>
           </h2>
           <p className="text-lg md:text-xl text-blue-100 mb-8">
-            Tudo que você precisa para dominar o inglês de uma vez por todas
+            Tudo que você precisa para dominar o inglês de uma vez por todas,
+            com um método que funciona.
           </p>
         </div>
 
-        {/* Grid responsivo: 1 coluna no mobile, 2 em desktops */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
           {/* Lista de Conteúdo do Curso */}
           <div className="space-y-6">
             <h3 className="text-2xl font-bold mb-6 text-center lg:text-left">
-              O que você vai receber:
+              Ao se inscrever hoje, você recebe:
             </h3>
 
             <div className="space-y-4">
@@ -65,26 +92,26 @@ export const OfferSection = () => {
               ))}
             </div>
 
-            <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black p-6 rounded-lg mt-8">
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black p-6 rounded-lg mt-8 shadow-2xl">
               <div className="flex items-center gap-3 mb-3">
                 <Star className="w-6 h-6" />
-                <span className="font-bold text-xl">BÔNUS EXCLUSIVO:</span>
+                <span className="font-bold text-xl">BÔNUS EXCLUSIVO HOJE:</span>
               </div>
               <p className="font-semibold text-lg">
                 Módulo de Inglês para Entrevistas de Emprego
               </p>
               <p className="text-sm mt-2 opacity-80">
-                Prepare-se para conquistar as melhores oportunidades
-                internacionais
+                Prepare-se para conquistar as melhores vagas internacionais e se
+                destacar na sua carreira.
               </p>
             </div>
           </div>
 
           {/* Seção de Preços e CTA */}
-          <div className="bg-white text-landing-text p-6 md:p-8 rounded-2xl shadow-2xl">
+          <div className="bg-white text-landing-text p-6 md:p-8 rounded-2xl shadow-2xl sticky top-8">
             <div id="payment-anchor" className="text-center mb-8">
-              <div className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-4 inline-block">
-                OFERTA LIMITADA
+              <div className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-4 inline-block animate-pulse">
+                OFERTA POR TEMPO LIMITADO
               </div>
 
               <div className="mb-4">
@@ -97,10 +124,17 @@ export const OfferSection = () => {
                 <p className="text-lg md:text-xl text-gray-600 mb-4">
                   ou R$ 997,00 à vista
                 </p>
-                <p className="text-sm text-red-600 font-semibold">
-                  <Clock className="w-4 h-4 inline mr-1" />
-                  Restam apenas 48 horas para esta oferta!
-                </p>
+
+                {/* Contador Regressivo */}
+                <div className="text-sm text-red-600 font-semibold p-2 bg-red-50 rounded-md">
+                  <Clock className="w-4 h-4 inline mr-1" />A oferta termina em:
+                  <span className="font-mono ml-1">
+                    {String(timeLeft.dias).padStart(2, "0")}d{" "}
+                    {String(timeLeft.horas).padStart(2, "0")}h{" "}
+                    {String(timeLeft.minutos).padStart(2, "0")}m{" "}
+                    {String(timeLeft.segundos).padStart(2, "0")}s
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -108,7 +142,7 @@ export const OfferSection = () => {
               onClick={handlePurchase}
               className="w-full bg-landing-accent hover:bg-green-600 text-white font-bold text-lg md:text-xl py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 mb-6"
             >
-              🚀 GARANTIR MINHA VAGA AGORA
+              🚀 QUERO MINHA VAGA AGORA!
             </Button>
 
             <div className="space-y-3 text-center text-sm text-gray-600 mb-6">
@@ -117,43 +151,26 @@ export const OfferSection = () => {
                 <span>Compra 100% Segura e Protegida</span>
               </div>
               <div className="flex items-center justify-center gap-2">
-                <Check className="w-4 h-4 text-green-500" />
-                <span>30 Dias de Garantia Incondicional</span>
-              </div>
-              <div className="flex items-center justify-center gap-2">
                 <CreditCard className="w-4 h-4 text-green-500" />
-                <span>Parcelamento sem juros no cartão</span>
+                <span>Parcelamento em até 12x sem juros</span>
               </div>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-lg text-center">
-              <p className="text-xs text-gray-500 mb-2">
-                ⚡ Acesso imediato após a confirmação do pagamento
-              </p>
-              <p className="text-xs text-gray-500">
-                💬 Suporte 24/7 para todas as suas dúvidas
-              </p>
+            {/* Selo de Garantia */}
+            <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-lg text-left">
+              <img
+                src="/Selogarantia.png"
+                alt="Selo de Garantia de 30 Dias"
+                className="w-16 h-16 flex-shrink-0 object-contain"
+              />
+              <div>
+                <h4 className="font-bold">Garantia Incondicional de 30 Dias</h4>
+                <p className="text-xs text-gray-500 mt-1">
+                  Seu risco é zero. Se por qualquer motivo você não gostar do
+                  curso, devolvemos 100% do seu dinheiro.
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* CTA Final Adicional */}
-        <div className="text-center mt-16 max-w-3xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl">
-            <h3 className="text-2xl font-bold mb-4">
-              Não deixe para amanhã o que pode mudar sua vida hoje!
-            </h3>
-            <p className="text-lg text-blue-100 mb-6">
-              Milhares de alunos já transformaram suas vidas com o Inglês
-              Definitivo. Chegou a sua vez de fazer parte dessa comunidade de
-              sucesso.
-            </p>
-            <Button
-              onClick={handlePurchase}
-              className="bg-landing-accent hover:bg-green-600 text-white font-bold text-lg px-8 py-3 rounded-lg"
-            >
-              SIM, EU QUERO FALAR INGLÊS!
-            </Button>
           </div>
         </div>
       </div>
